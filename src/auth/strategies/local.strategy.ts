@@ -5,20 +5,20 @@ import * as bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
 import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
-import { LocalStrategyFields, StrategyName } from '../auth.constants';
+import { LOCAL_STRATEGY_FIELD, STRATEGY_NAME } from '../auth.constants';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(
   Strategy,
-  StrategyName.local,
+  STRATEGY_NAME.local,
 ) {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {
     super({
-      usernameField: LocalStrategyFields.username,
-      passwordField: LocalStrategyFields.password,
+      usernameField: LOCAL_STRATEGY_FIELD.username,
+      passwordField: LOCAL_STRATEGY_FIELD.password,
     });
   }
 

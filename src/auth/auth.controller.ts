@@ -11,7 +11,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginRequest, RegisterRequest } from './auth.interfaces';
-import { Exception } from './auth.constants';
+import { AUTH_EXCEPTION } from './auth.constants';
 
 @Controller('auth')
 @SerializeOptions({ strategy: 'excludeAll' })
@@ -36,7 +36,7 @@ export class AuthController {
     const user = new User();
 
     if (createUserDto.password !== createUserDto.retypedPassword) {
-      throw new BadRequestException([Exception.notEqualPasswords]);
+      throw new BadRequestException([AUTH_EXCEPTION.notEqualPasswords]);
     }
 
     const existingUser = await this.userRepository.findOne({
@@ -47,7 +47,7 @@ export class AuthController {
     });
 
     if (existingUser) {
-      throw new BadRequestException([Exception.existingUser]);
+      throw new BadRequestException([AUTH_EXCEPTION.existingUser]);
     }
 
     user.login = createUserDto.login;
