@@ -1,5 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { User } from 'src/entities/user.entity';
 
 export default registerAs('orm.config', (): TypeOrmModuleOptions => {
   return {
@@ -9,7 +10,7 @@ export default registerAs('orm.config', (): TypeOrmModuleOptions => {
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [],
+    entities: [User],
     synchronize: true,
     dropSchema: Boolean(parseInt(process.env.DB_DROP_SCHEMA)),
   };
