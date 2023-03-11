@@ -3,14 +3,11 @@ import { PassportStrategy } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Repository } from 'typeorm';
-import { AuthNamespace } from '../auth.namespace';
 import { User } from '../../entities/user.entity';
+import { StrategyName } from '../auth.constants';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(
-  Strategy,
-  AuthNamespace.StrategyName.jwt,
-) {
+export class JwtStrategy extends PassportStrategy(Strategy, StrategyName.jwt) {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,

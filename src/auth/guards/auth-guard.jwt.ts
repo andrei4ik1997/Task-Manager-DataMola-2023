@@ -1,4 +1,4 @@
 import { AuthGuard } from '@nestjs/passport';
-import { AuthNamespace } from '../auth.namespace';
+import { StrategyName } from '../auth.constants';
 
-export class AuthGuardJwt extends AuthGuard(AuthNamespace.StrategyName.jwt) {}
+export class AuthGuardJwt extends AuthGuard(StrategyName.jwt) {}

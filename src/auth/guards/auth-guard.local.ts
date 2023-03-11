@@ -1,6 +1,4 @@
 import { AuthGuard } from '@nestjs/passport';
-import { AuthNamespace } from '../auth.namespace';
+import { StrategyName } from '../auth.constants';
 
-export class AuthGuardLocal extends AuthGuard(
-  AuthNamespace.StrategyName.local,
-) {}
+export class AuthGuardLocal extends AuthGuard(StrategyName.local) {}

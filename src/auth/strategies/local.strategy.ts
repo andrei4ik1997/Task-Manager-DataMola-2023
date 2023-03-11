@@ -4,21 +4,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
 import { Repository } from 'typeorm';
-import { AuthNamespace } from '../auth.namespace';
 import { User } from '../../entities/user.entity';
+import { LocalStrategyFields, StrategyName } from '../auth.constants';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(
   Strategy,
-  AuthNamespace.StrategyName.local,
+  StrategyName.local,
 ) {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {
     super({
-      usernameField: AuthNamespace.LocalStrategyFields.username,
-      passwordField: AuthNamespace.LocalStrategyFields.password,
+      usernameField: LocalStrategyFields.username,
+      passwordField: LocalStrategyFields.password,
     });
   }
 
