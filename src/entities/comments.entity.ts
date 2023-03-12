@@ -7,13 +7,17 @@ import { User } from './users.entity';
 
 @Entity(TABLE_NAME.comments)
 export class Comment {
+  constructor(partial?: Partial<Comment>) {
+    Object.assign(this, partial);
+  }
+
   @PrimaryGeneratedColumn()
   @Expose()
   id: number;
 
   @Column()
   @Expose()
-  createdDate: Date;
+  createdAt: Date;
 
   @Column({ length: 280 })
   @Expose()
