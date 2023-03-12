@@ -6,7 +6,7 @@ import { AuthGuardJwt } from './guards/auth-guard.jwt';
 import { AuthGuardLocal } from './guards/auth-guard.local';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { Users } from '../entities/users.entity';
+import { User } from '../entities/users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,14 +17,14 @@ import { AUTH_EXCEPTION } from './auth.constants';
 @SerializeOptions({ strategy: 'excludeAll' })
 export class AuthController {
   constructor(
-    @InjectRepository(Users)
-    private readonly userRepository: Repository<Users>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly authService: AuthService,
   ) {}
 
   @Post('login')
   @UseGuards(AuthGuardLocal)
-  async login(@CurrentUser() user: Users): Promise<LoginRequest> {
+  async login(@CurrentUser() user: User): Promise<LoginRequest> {
     return {
       userId: user.id,
       token: this.authService.getTokenForUser(user),
@@ -33,7 +33,7 @@ export class AuthController {
 
   @Post('register')
   async create(@Body() createUserDto: CreateUserDto): Promise<RegisterRequest> {
-    const user = new Users();
+    const user = new User();
 
     if (createUserDto.password !== createUserDto.retypedPassword) {
       throw new BadRequestException([AUTH_EXCEPTION.notEqualPasswords]);
@@ -63,7 +63,7 @@ export class AuthController {
   @Get('profile')
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
-  async getProfile(@CurrentUser() user: Users): Promise<Users> {
+  async getProfile(@CurrentUser() user: User): Promise<User> {
     return user;
   }
 }

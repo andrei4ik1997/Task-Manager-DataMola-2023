@@ -5,11 +5,11 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
-import { Users } from '../entities/users.entity';
+import { User } from '../entities/users.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Users]),
+    TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: process.env.AUTH_SECRET,
