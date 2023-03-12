@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
 import { Repository } from 'typeorm';
-import { User } from '../../entities/user.entity';
+import { Users } from '../../entities/users.entity';
 import { LOCAL_STRATEGY_FIELD, STRATEGY_NAME } from '../auth.constants';
 
 @Injectable()
@@ -13,8 +13,8 @@ export class LocalStrategy extends PassportStrategy(
   STRATEGY_NAME.local,
 ) {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(Users)
+    private readonly userRepository: Repository<Users>,
   ) {
     super({
       usernameField: LOCAL_STRATEGY_FIELD.username,
@@ -22,7 +22,7 @@ export class LocalStrategy extends PassportStrategy(
     });
   }
 
-  public async validate(login: string, password: string): Promise<User> {
+  public async validate(login: string, password: string): Promise<Users> {
     const user = await this.userRepository.findOneBy({
       login,
     });

@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class User {
+export class Users {
   @PrimaryGeneratedColumn()
   @Expose()
   id: number;
