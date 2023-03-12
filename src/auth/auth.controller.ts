@@ -12,8 +12,9 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginRequest, RegisterRequest } from './auth.interfaces';
 import { AUTH_EXCEPTION } from './auth.constants';
+import { API_PATH } from 'src/app.constants';
 
-@Controller('auth')
+@Controller(API_PATH.auth)
 @SerializeOptions({ strategy: 'excludeAll' })
 export class AuthController {
   constructor(
@@ -22,7 +23,7 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  @Post('login')
+  @Post(API_PATH.login)
   @UseGuards(AuthGuardLocal)
   async login(@CurrentUser() user: User): Promise<LoginRequest> {
     return {
@@ -31,7 +32,7 @@ export class AuthController {
     };
   }
 
-  @Post('register')
+  @Post(API_PATH.register)
   async create(@Body() createUserDto: CreateUserDto): Promise<RegisterRequest> {
     const user = new User();
 
@@ -60,7 +61,7 @@ export class AuthController {
     };
   }
 
-  @Get('profile')
+  @Get(API_PATH.profile)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
   async getProfile(@CurrentUser() user: User): Promise<User> {

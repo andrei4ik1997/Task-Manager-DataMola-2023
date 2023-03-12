@@ -6,3 +6,13 @@ export const TABLE_NAME = {
   tasks: 'tasks',
   comments: 'comments',
 };
+
+export const API_PATH = {
+  auth: 'auth',
+  login: 'login',
+  register: 'register',
+  profile: 'profile',
+  tasks: 'tasks',
+  taskId: 'taskId',
+  comments: 'comments',
+};

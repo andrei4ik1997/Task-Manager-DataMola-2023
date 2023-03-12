@@ -4,6 +4,7 @@ import { Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { Post, SerializeOptions, UseGuards } from '@nestjs/common';
 import { UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { HttpCode, NotFoundException } from '@nestjs/common';
+import { API_PATH } from 'src/app.constants';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/entities/users.entity';
@@ -12,7 +13,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { TASK_EXCEPTION } from './tasks.constants';
 import { TasksService } from './tasks.service';
 
-@Controller('/tasks')
+@Controller(API_PATH.tasks)
 @SerializeOptions({ strategy: 'excludeAll' })
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
@@ -24,10 +25,10 @@ export class TasksController {
     return await this.tasksService.getTasksWithCommentsCount();
   }
 
-  @Get(':id')
+  @Get(`:${API_PATH.taskId}`)
   @UseInterceptors(ClassSerializerInterceptor)
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    const task = await this.tasksService.getTaskWithComments(id);
+  async findOne(@Param(API_PATH.taskId, ParseIntPipe) taskId: number) {
+    const task = await this.tasksService.getTaskWithComments(taskId);
 
     if (!task) {
       throw new NotFoundException();
@@ -43,15 +44,15 @@ export class TasksController {
     return await this.tasksService.createTask(taskDto, user);
   }
 
-  @Patch(':id')
+  @Patch(`:${API_PATH.taskId}`)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @Body() taskDto: UpdateTaskDto,
     @CurrentUser() user: User,
   ) {
-    const task = await this.tasksService.findOne(id);
+    const task = await this.tasksService.findOne(taskId);
 
     if (!task) {
       throw new NotFoundException();
@@ -64,14 +65,14 @@ export class TasksController {
     return await this.tasksService.updateTask(task, taskDto);
   }
 
-  @Delete(':id')
+  @Delete(`:${API_PATH.taskId}`)
   @UseGuards(AuthGuardJwt)
   @HttpCode(204)
   async remove(
-    @Param('id', ParseIntPipe) id: number,
+    @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @CurrentUser() user: User,
   ) {
-    const task = await this.tasksService.findOne(id);
+    const task = await this.tasksService.findOne(taskId);
 
     if (!task) {
       throw new NotFoundException();
@@ -81,6 +82,6 @@ export class TasksController {
       throw new ForbiddenException(null, TASK_EXCEPTION.notAuthorizedToDelete);
     }
 
-    await this.tasksService.deleteTask(id);
+    await this.tasksService.deleteTask(taskId);
   }
 }
