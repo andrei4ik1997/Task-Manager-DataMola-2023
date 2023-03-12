@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import ormConfig from './config/orm.config';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import ormConfig from './config/orm.config';
       useFactory: ormConfig,
     }),
     AuthModule,
+    TasksModule,
   ],
   controllers: [AppController],
 })
