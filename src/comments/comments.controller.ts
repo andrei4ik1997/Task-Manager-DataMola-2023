@@ -2,13 +2,15 @@ import { UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Get, Param, ParseIntPipe } from '@nestjs/common';
 import { Post, SerializeOptions, UseInterceptors } from '@nestjs/common';
 import { Body, ClassSerializerInterceptor, Controller } from '@nestjs/common';
-import { API_PATH } from 'src/app.constants';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { API_PATH, BEARER_AUTH_NAME } from 'src/app.constants';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/entities/users.entity';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
+@ApiTags(API_PATH.comments)
 @Controller(`${API_PATH.tasks}/:${API_PATH.taskId}/${API_PATH.comments}`)
 @SerializeOptions({ strategy: 'excludeAll' })
 export class CommentsController {
@@ -21,6 +23,7 @@ export class CommentsController {
     return await this.commentsService.getCommentsByTaskIdWithCreator(taskId);
   }
 
+  @ApiBearerAuth(BEARER_AUTH_NAME)
   @Post()
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)

@@ -12,8 +12,11 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginRequest, RegisterRequest } from './auth.interfaces';
 import { AUTH_EXCEPTION } from './auth.constants';
-import { API_PATH } from 'src/app.constants';
+import { API_PATH, BEARER_AUTH_NAME } from 'src/app.constants';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { LoginUserDto } from './dto/login-user.dto';
 
+@ApiTags(API_PATH.auth)
 @Controller(API_PATH.auth)
 @SerializeOptions({ strategy: 'excludeAll' })
 export class AuthController {
@@ -25,6 +28,7 @@ export class AuthController {
 
   @Post(API_PATH.login)
   @UseGuards(AuthGuardLocal)
+  @ApiBody({ type: LoginUserDto })
   async login(@CurrentUser() user: User): Promise<LoginRequest> {
     return {
       userId: user.id,
@@ -61,6 +65,7 @@ export class AuthController {
     };
   }
 
+  @ApiBearerAuth(BEARER_AUTH_NAME)
   @Get(API_PATH.profile)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)

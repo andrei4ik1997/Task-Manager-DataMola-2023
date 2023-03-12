@@ -4,7 +4,8 @@ import { Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { Post, SerializeOptions, UseGuards } from '@nestjs/common';
 import { UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { HttpCode, NotFoundException } from '@nestjs/common';
-import { API_PATH } from 'src/app.constants';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { API_PATH, BEARER_AUTH_NAME } from 'src/app.constants';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/entities/users.entity';
@@ -13,6 +14,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { TASK_EXCEPTION } from './tasks.constants';
 import { TasksService } from './tasks.service';
 
+@ApiTags(API_PATH.tasks)
 @Controller(API_PATH.tasks)
 @SerializeOptions({ strategy: 'excludeAll' })
 export class TasksController {
@@ -37,6 +39,7 @@ export class TasksController {
     return task;
   }
 
+  @ApiBearerAuth(BEARER_AUTH_NAME)
   @Post()
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
@@ -44,6 +47,7 @@ export class TasksController {
     return await this.tasksService.createTask(taskDto, user);
   }
 
+  @ApiBearerAuth(BEARER_AUTH_NAME)
   @Patch(`:${API_PATH.taskId}`)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
@@ -65,6 +69,7 @@ export class TasksController {
     return await this.tasksService.updateTask(task, taskDto);
   }
 
+  @ApiBearerAuth(BEARER_AUTH_NAME)
   @Delete(`:${API_PATH.taskId}`)
   @UseGuards(AuthGuardJwt)
   @HttpCode(204)
