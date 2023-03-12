@@ -28,7 +28,8 @@ export class TasksService {
 
   private getTaskWithCommentsQuery(id: number): SelectQueryBuilder<Task> {
     return this.getTasksBaseQuery()
-      .loadRelationIdAndMap('task.comments', 'task.comments')
+      .leftJoinAndSelect('task.comments', 't')
+      .leftJoinAndSelect('t.creator', 'с')
       .where({ id });
   }
 
@@ -49,14 +50,14 @@ export class TasksService {
   }
 
   public async createTask(taskDto: CreateTaskDto, user: User): Promise<Task> {
-    return await this.tasksRepository.save(
-      new Task({
-        ...taskDto,
-        creatorId: user.id,
-        assignee: user.userName,
-        createdAt: new Date(),
-      }),
-    );
+    const task = new Task({
+      ...taskDto,
+      creatorId: user.id,
+      assignee: user.userName,
+      createdAt: new Date(),
+    });
+
+    return await this.tasksRepository.save(task);
   }
 
   public async updateTask(task: Task, taskDto: UpdateTaskDto): Promise<Task> {
