@@ -1,4 +1,4 @@
-import { SerializeOptions } from '@nestjs/common';
+import { HttpCode, HttpStatus, SerializeOptions } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { Post } from '@nestjs/common';
@@ -18,9 +18,10 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post(API_PATH.login)
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuardLocal)
   @ApiBody({ type: LoginUserDto })
-  async login(@CurrentUser() user: User): Promise<LoginRequest> {
+  public async login(@CurrentUser() user: User): Promise<LoginRequest> {
     return {
       login: user.login,
       token: this.authService.getTokenForUser(user),

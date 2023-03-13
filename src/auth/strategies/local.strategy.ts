@@ -5,6 +5,7 @@ import { Strategy } from 'passport-local';
 import { UsersService } from 'src/users/users.service';
 import { User } from '../../users/entity/users.entity';
 import { LOCAL_STRATEGY_FIELD, STRATEGY_NAME } from '../auth.constants';
+import { INCORRECT_LOGIN, INCORRECT_PASSWORD } from '../auth.constants';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(
@@ -22,11 +23,11 @@ export class LocalStrategy extends PassportStrategy(
     const user = await this.usersService.findUserByLogin(login);
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(INCORRECT_LOGIN);
     }
 
     if (!(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(INCORRECT_PASSWORD);
     }
 
     return user;

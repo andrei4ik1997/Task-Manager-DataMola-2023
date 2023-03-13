@@ -1,4 +1,5 @@
-import { Body, ClassSerializerInterceptor, Controller } from '@nestjs/common';
+import { Controller, HttpStatus } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor } from '@nestjs/common';
 import { Delete, ForbiddenException, Get } from '@nestjs/common';
 import { Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { Post, SerializeOptions, UseGuards } from '@nestjs/common';
@@ -11,7 +12,8 @@ import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/users/entity/users.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { TASK_EXCEPTION } from './tasks.constants';
+import { NOT_AUTHORIZED_TO_DELETE, TASK_NOT_FOUND } from './tasks.constants';
+import { NOT_AUTHORIZED_TO_CHANGE } from './tasks.constants';
 import { TasksService } from './tasks.service';
 
 @ApiTags(API_PATH.tasks)
@@ -22,18 +24,20 @@ export class TasksController {
 
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
+  @HttpCode(HttpStatus.OK)
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll() {
     return await this.tasksService.getTasksWithCommentsCount();
   }
 
   @Get(`:${API_PATH.taskId}`)
+  @HttpCode(HttpStatus.OK)
   @UseInterceptors(ClassSerializerInterceptor)
   async findOne(@Param(API_PATH.taskId, ParseIntPipe) taskId: number) {
     const task = await this.tasksService.getTaskWithComments(taskId);
 
     if (!task) {
-      throw new NotFoundException();
+      throw new NotFoundException(TASK_NOT_FOUND);
     }
 
     return task;
@@ -41,6 +45,7 @@ export class TasksController {
 
   @ApiBearerAuth(BEARER_AUTH_NAME)
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
   async create(@Body() taskDto: CreateTaskDto, @CurrentUser() user: User) {
@@ -49,6 +54,7 @@ export class TasksController {
 
   @ApiBearerAuth(BEARER_AUTH_NAME)
   @Patch(`:${API_PATH.taskId}`)
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
   async update(
@@ -59,11 +65,11 @@ export class TasksController {
     const task = await this.tasksService.findOne(taskId);
 
     if (!task) {
-      throw new NotFoundException();
+      throw new NotFoundException(TASK_NOT_FOUND);
     }
 
     if (task.creatorId !== user.id) {
-      throw new ForbiddenException(null, TASK_EXCEPTION.notAuthorizedToChange);
+      throw new ForbiddenException(null, NOT_AUTHORIZED_TO_CHANGE);
     }
 
     return await this.tasksService.updateTask(task, taskDto);
@@ -72,7 +78,7 @@ export class TasksController {
   @ApiBearerAuth(BEARER_AUTH_NAME)
   @Delete(`:${API_PATH.taskId}`)
   @UseGuards(AuthGuardJwt)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @CurrentUser() user: User,
@@ -80,11 +86,11 @@ export class TasksController {
     const task = await this.tasksService.findOne(taskId);
 
     if (!task) {
-      throw new NotFoundException();
+      throw new NotFoundException(TASK_NOT_FOUND);
     }
 
     if (task.creatorId !== user.id) {
-      throw new ForbiddenException(null, TASK_EXCEPTION.notAuthorizedToDelete);
+      throw new ForbiddenException(null, NOT_AUTHORIZED_TO_DELETE);
     }
 
     await this.tasksService.deleteTask(taskId);
