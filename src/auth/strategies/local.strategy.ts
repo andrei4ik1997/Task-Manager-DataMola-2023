@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import * as bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
 import { UsersService } from 'src/users/users.service';
-import { User } from '../../entities/users.entity';
+import { User } from '../../users/entity/users.entity';
 import { LOCAL_STRATEGY_FIELD, STRATEGY_NAME } from '../auth.constants';
 
 @Injectable()

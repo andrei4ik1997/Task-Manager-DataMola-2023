@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { User } from 'src/entities/users.entity';
+import { User } from 'src/users/entity/users.entity';
 import { UsersService } from 'src/users/users.service';
 import { STRATEGY_NAME } from '../auth.constants';
 

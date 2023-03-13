@@ -3,8 +3,8 @@ import { TABLE_NAME } from 'src/app.constants';
 import { Priority, Status } from 'src/tasks/tasks.enums';
 import { ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Column, Entity } from 'typeorm';
-import { Comment } from './comments.entity';
-import { User } from './users.entity';
+import { Comment } from '../../comments/entity/comments.entity';
+import { User } from '../../users/entity/users.entity';
 
 @Entity(TABLE_NAME.tasks)
 export class Task {

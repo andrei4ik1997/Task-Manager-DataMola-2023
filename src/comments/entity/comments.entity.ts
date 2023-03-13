@@ -2,8 +2,8 @@ import { Expose } from 'class-transformer';
 import { TABLE_NAME } from 'src/app.constants';
 import { Column, Entity, JoinColumn } from 'typeorm';
 import { ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Task } from './tasks.entity';
-import { User } from './users.entity';
+import { Task } from '../../tasks/entity/tasks.entity';
+import { User } from '../../users/entity/users.entity';
 
 @Entity(TABLE_NAME.comments)
 export class Comment {

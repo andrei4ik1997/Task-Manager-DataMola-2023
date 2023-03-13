@@ -5,7 +5,7 @@ import { Post } from '@nestjs/common';
 import { AuthGuardLocal } from './guards/auth-guard.local';
 import { AuthService } from './auth.service';
 import { CurrentUser } from '../users/decorators/current-user.decorator';
-import { User } from '../entities/users.entity';
+import { User } from '../users/entity/users.entity';
 import { LoginRequest } from './auth.interfaces';
 import { API_PATH } from 'src/app.constants';
 import { ApiBody, ApiTags } from '@nestjs/swagger';

@@ -7,7 +7,7 @@ import { Controller } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { API_PATH, BEARER_AUTH_NAME } from 'src/app.constants';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
-import { User } from 'src/entities/users.entity';
+import { User } from 'src/users/entity/users.entity';
 import { AUTH_EXCEPTION } from './users.constants';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';

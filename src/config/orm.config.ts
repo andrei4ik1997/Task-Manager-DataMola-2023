@@ -1,8 +1,8 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { Comment } from 'src/entities/comments.entity';
-import { Task } from 'src/entities/tasks.entity';
-import { User } from 'src/entities/users.entity';
+import { Comment } from 'src/comments/entity/comments.entity';
+import { Task } from 'src/tasks/entity/tasks.entity';
+import { User } from 'src/users/entity/users.entity';
 
 export default registerAs('orm.config', (): TypeOrmModuleOptions => {
   return {

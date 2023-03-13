@@ -6,7 +6,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { API_PATH, BEARER_AUTH_NAME } from 'src/app.constants';
 import { CurrentUser } from 'src/users/decorators/current-user.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
-import { User } from 'src/entities/users.entity';
+import { User } from 'src/users/entity/users.entity';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
