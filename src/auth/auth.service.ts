@@ -16,7 +16,6 @@ export class AuthService {
     });
   }
 
-  public async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, SALT);
+
   }
 }

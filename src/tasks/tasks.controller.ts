@@ -6,7 +6,7 @@ import { UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { HttpCode, NotFoundException } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { API_PATH, BEARER_AUTH_NAME } from 'src/app.constants';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { CurrentUser } from 'src/users/decorators/current-user.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/entities/users.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
