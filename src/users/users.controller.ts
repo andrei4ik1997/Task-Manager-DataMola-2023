@@ -1,4 +1,6 @@
-import { HttpCode, HttpStatus, SerializeOptions } from '@nestjs/common';
+import { Param, ParseIntPipe, Patch, SerializeOptions } from '@nestjs/common';
+import { HttpStatus, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, HttpCode } from '@nestjs/common';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { Get, Post } from '@nestjs/common';
 import { Body } from '@nestjs/common';
@@ -9,11 +11,14 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { API_PATH, BEARER_AUTH_NAME } from 'src/app.constants';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/users/entity/users.entity';
-import { NOT_EQUAL_PASSWORDS, USER_EXISTING } from './users.constants';
-import { CurrentUser } from './decorators/current-user.decorator';
+import { NOT_EQUAL_PASSWORDS } from './users.constants';
+import { NOT_AUTHORIZED_TO_CHANGE } from './users.constants';
+import { USER_EXISTING, USER_NOT_FOUND } from './users.constants';
+import { AuthorizedUser } from './decorators/authorized-user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { RegisterRequest } from './users.interfaces';
 import { UsersService } from './users.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags(API_PATH.users)
 @Controller(API_PATH.users)
@@ -26,8 +31,10 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
-  public async getProfile(@CurrentUser() user: User): Promise<User> {
-    return await user;
+  public async getProfile(
+    @AuthorizedUser() authorizedUser: User,
+  ): Promise<User> {
+    return await authorizedUser;
   }
 
   @Post(API_PATH.register)
@@ -46,5 +53,30 @@ export class UsersController {
     }
 
     return await this.usersService.createUser(userDto);
+  }
+
+  @ApiBearerAuth(BEARER_AUTH_NAME)
+  @Patch(`:${API_PATH.userId}`)
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(AuthGuardJwt)
+  @UseInterceptors(ClassSerializerInterceptor)
+  public async update(
+    @Param(API_PATH.userId, ParseIntPipe) userId: number,
+    @AuthorizedUser() authorizedUser: User,
+    @Body() userDto: UpdateUserDto,
+  ): Promise<User> {
+    const user = await this.usersService.findUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException(USER_NOT_FOUND);
+    }
+    if (userId !== authorizedUser.id) {
+      throw new ForbiddenException(null, NOT_AUTHORIZED_TO_CHANGE);
+    }
+
+    if (userDto.password !== userDto.retypedPassword) {
+      throw new BadRequestException([NOT_EQUAL_PASSWORDS]);
+    }
+    return await this.usersService.updateUser(user, userDto);
   }
 }

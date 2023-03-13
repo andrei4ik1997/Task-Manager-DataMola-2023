@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SALT } from './users.constants';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -36,12 +37,22 @@ export class UsersService {
   }
 
   public async createUser(userDto: CreateUserDto): Promise<User> {
-    const user = new User();
-
-    user.login = userDto.login;
-    user.userName = userDto.userName;
-    user.password = await this.hashPassword(userDto.password);
+    const user = new User({
+      login: userDto.login,
+      userName: userDto.userName,
+      password: await this.hashPassword(userDto.password),
+    });
 
     return await this.usersRepository.save(user);
+  }
+
+  public async updateUser(user: User, userDto: UpdateUserDto): Promise<User> {
+    const updatedUser = new User({
+      ...user,
+      userName: userDto.userName,
+      password: await this.hashPassword(userDto.password),
+    });
+
+    return await this.usersRepository.save(updatedUser);
   }
 }

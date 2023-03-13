@@ -6,6 +6,10 @@ import { Task } from '../../tasks/entity/tasks.entity';
 
 @Entity(TABLE_NAME.users)
 export class User {
+  constructor(partial?: Partial<User>) {
+    Object.assign(this, partial);
+  }
+
   @PrimaryGeneratedColumn()
   @Expose()
   id: number;
