@@ -10,7 +10,7 @@ import { Post, SerializeOptions, UseInterceptors } from '@nestjs/common';
 import { Body, ClassSerializerInterceptor, Controller } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { API_PATH, BEARER_AUTH_NAME } from 'src/app.constants';
-import { CurrentUser } from 'src/users/decorators/current-user.decorator';
+import { AuthorizedUser } from 'src/users/decorators/authorized-user.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/users/entity/users.entity';
 import { CommentsService } from './comments.service';
@@ -41,8 +41,8 @@ export class CommentsController {
   public async create(
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @Body() commentDto: CreateCommentDto,
-    @CurrentUser() user: User,
+    @AuthorizedUser() authorizedUser: User,
   ): Promise<Comment> {
-    return this.commentsService.create(commentDto, taskId, user.id);
+    return this.commentsService.create(commentDto, taskId, authorizedUser.id);
   }
 }

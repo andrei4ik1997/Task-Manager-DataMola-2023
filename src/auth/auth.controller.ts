@@ -4,7 +4,7 @@ import { Controller } from '@nestjs/common';
 import { Post } from '@nestjs/common';
 import { AuthGuardLocal } from './guards/auth-guard.local';
 import { AuthService } from './auth.service';
-import { CurrentUser } from '../users/decorators/current-user.decorator';
+import { AuthorizedUser } from '../users/decorators/authorized-user.decorator';
 import { User } from '../users/entity/users.entity';
 import { LoginRequest } from './auth.interfaces';
 import { API_PATH } from 'src/app.constants';
@@ -21,10 +21,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuardLocal)
   @ApiBody({ type: LoginUserDto })
-  public async login(@CurrentUser() user: User): Promise<LoginRequest> {
+  public async login(
+    @AuthorizedUser() authorizedUser: User,
+  ): Promise<LoginRequest> {
     return {
-      login: user.login,
-      token: this.authService.getTokenForUser(user),
+      login: authorizedUser.login,
+      token: this.authService.getTokenForUser(authorizedUser),
     };
   }
 }

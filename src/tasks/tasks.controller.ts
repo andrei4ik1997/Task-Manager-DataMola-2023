@@ -7,7 +7,7 @@ import { UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { HttpCode, NotFoundException } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { API_PATH, BEARER_AUTH_NAME } from 'src/app.constants';
-import { CurrentUser } from 'src/users/decorators/current-user.decorator';
+import { AuthorizedUser } from 'src/users/decorators/authorized-user.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/users/entity/users.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -48,8 +48,11 @@ export class TasksController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
-  async create(@Body() taskDto: CreateTaskDto, @CurrentUser() user: User) {
-    return await this.tasksService.createTask(taskDto, user);
+  async create(
+    @Body() taskDto: CreateTaskDto,
+    @AuthorizedUser() authorizedUser: User,
+  ) {
+    return await this.tasksService.createTask(taskDto, authorizedUser);
   }
 
   @ApiBearerAuth(BEARER_AUTH_NAME)
@@ -60,7 +63,7 @@ export class TasksController {
   async update(
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @Body() taskDto: UpdateTaskDto,
-    @CurrentUser() user: User,
+    @AuthorizedUser() authorizedUser: User,
   ) {
     const task = await this.tasksService.findOne(taskId);
 
@@ -68,7 +71,7 @@ export class TasksController {
       throw new NotFoundException(TASK_NOT_FOUND);
     }
 
-    if (task.creatorId !== user.id) {
+    if (task.creatorId !== authorizedUser.id) {
       throw new ForbiddenException(null, NOT_AUTHORIZED_TO_CHANGE);
     }
 
@@ -81,7 +84,7 @@ export class TasksController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
-    @CurrentUser() user: User,
+    @AuthorizedUser() authorizedUser: User,
   ) {
     const task = await this.tasksService.findOne(taskId);
 
@@ -89,7 +92,7 @@ export class TasksController {
       throw new NotFoundException(TASK_NOT_FOUND);
     }
 
-    if (task.creatorId !== user.id) {
+    if (task.creatorId !== authorizedUser.id) {
       throw new ForbiddenException(null, NOT_AUTHORIZED_TO_DELETE);
     }
 

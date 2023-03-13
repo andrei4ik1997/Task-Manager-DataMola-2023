@@ -12,9 +12,10 @@ export const TABLE_NAME = {
 export const API_PATH = {
   auth: 'auth',
   login: 'login',
-  users: 'users',
+  users: 'user',
+  userId: 'userId',
   register: 'register',
-  profile: 'profile',
+  profile: 'my_profile',
   tasks: 'tasks',
   taskId: 'taskId',
   comments: 'comments',
