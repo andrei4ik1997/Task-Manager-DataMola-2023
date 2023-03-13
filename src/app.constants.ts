@@ -12,6 +12,7 @@ export const TABLE_NAME = {
 export const API_PATH = {
   auth: 'auth',
   login: 'login',
+  users: 'users',
   register: 'register',
   profile: 'profile',
   tasks: 'tasks',

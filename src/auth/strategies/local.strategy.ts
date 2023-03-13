@@ -1,9 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
-import { Repository } from 'typeorm';
+import { UsersService } from 'src/users/users.service';
 import { User } from '../../entities/users.entity';
 import { LOCAL_STRATEGY_FIELD, STRATEGY_NAME } from '../auth.constants';
 
@@ -12,10 +11,7 @@ export class LocalStrategy extends PassportStrategy(
   Strategy,
   STRATEGY_NAME.local,
 ) {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {
+  constructor(private readonly usersService: UsersService) {
     super({
       usernameField: LOCAL_STRATEGY_FIELD.username,
       passwordField: LOCAL_STRATEGY_FIELD.password,
@@ -23,9 +19,7 @@ export class LocalStrategy extends PassportStrategy(
   }
 
   public async validate(login: string, password: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({
-      login,
-    });
+    const user = await this.usersService.findUserByLogin(login);
 
     if (!user) {
       throw new UnauthorizedException();
