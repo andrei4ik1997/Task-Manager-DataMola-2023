@@ -34,3 +34,5 @@ export const BEARER_AUTH_CONFIG: SecuritySchemeObject = {
   in: 'header',
 };
 export const BEARER_AUTH_NAME = 'JWT-auth';
+
+export const JWT_EXPIRES_IN = '1m';
