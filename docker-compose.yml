@@ -28,6 +28,17 @@ services:
     networks:
       - postgres
 
+  task-manager:
+    container_name: task_manager_api_container
+    image: task-manager-datamola-2023:latest
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./.env:/task-manager/app/.env
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
 
