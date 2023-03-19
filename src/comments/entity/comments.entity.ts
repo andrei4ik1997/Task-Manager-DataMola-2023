@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { TABLE_NAME } from 'src/app.constants';
 import { Column, Entity, JoinColumn } from 'typeorm';
 import { ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
@@ -12,6 +12,7 @@ export class Comment {
   }
 
   @PrimaryGeneratedColumn()
+  @Transform(({ value }) => value.toString())
   @Expose()
   id: number;
 

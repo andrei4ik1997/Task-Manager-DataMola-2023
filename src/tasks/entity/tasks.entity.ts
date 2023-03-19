@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { TABLE_NAME } from 'src/app.constants';
 import { Priority, Status } from 'src/tasks/tasks.enums';
 import { ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
@@ -13,6 +13,7 @@ export class Task {
   }
 
   @PrimaryGeneratedColumn()
+  @Transform(({ value }) => value.toString())
   @Expose()
   id: number;
 
