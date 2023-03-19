@@ -42,7 +42,8 @@ export class CommentsController {
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @Body() commentDto: CreateCommentDto,
     @AuthorizedUser() authorizedUser: User,
-  ): Promise<Comment> {
-    return this.commentsService.create(commentDto, taskId, authorizedUser.id);
+  ): Promise<Comment[]> {
+    await this.commentsService.create(commentDto, taskId, authorizedUser.id);
+    return await this.commentsService.getCommentsByTaskIdWithCreator(taskId);
   }
 }

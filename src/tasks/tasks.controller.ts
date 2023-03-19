@@ -15,6 +15,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { NOT_AUTHORIZED_TO_DELETE, TASK_NOT_FOUND } from './tasks.constants';
 import { NOT_AUTHORIZED_TO_CHANGE } from './tasks.constants';
 import { TasksService } from './tasks.service';
+import { Task } from './entity/tasks.entity';
 
 @ApiTags(API_PATH.tasks)
 @Controller(API_PATH.tasks)
@@ -26,15 +27,19 @@ export class TasksController {
   @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(ClassSerializerInterceptor)
-  async findAll() {
-    return await this.tasksService.getTasksWithCommentsCount();
+  async findAll(): Promise<Task[]> {
+    return await this.tasksService.getTasksWithComments();
   }
 
   @Get(`:${API_PATH.taskId}`)
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(ClassSerializerInterceptor)
-  async findOne(@Param(API_PATH.taskId, ParseIntPipe) taskId: number) {
-    const task = await this.tasksService.getTaskWithComments(taskId);
+  async findOne(
+    @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
+  ): Promise<Task> {
+    const task = await this.tasksService.getTaskWithCommentsAndCommentCreator(
+      taskId,
+    );
 
     if (!task) {
       throw new NotFoundException(TASK_NOT_FOUND);
@@ -51,8 +56,9 @@ export class TasksController {
   async create(
     @Body() taskDto: CreateTaskDto,
     @AuthorizedUser() authorizedUser: User,
-  ) {
-    return await this.tasksService.createTask(taskDto, authorizedUser);
+  ): Promise<Task[]> {
+    await this.tasksService.createTask(taskDto, authorizedUser);
+    return await this.tasksService.getTasksWithComments();
   }
 
   @ApiBearerAuth(BEARER_AUTH_NAME)
@@ -64,7 +70,7 @@ export class TasksController {
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @Body() taskDto: UpdateTaskDto,
     @AuthorizedUser() authorizedUser: User,
-  ) {
+  ): Promise<Task[]> {
     const task = await this.tasksService.findOne(taskId);
 
     if (!task) {
@@ -74,18 +80,17 @@ export class TasksController {
     if (task.creatorId !== authorizedUser.id) {
       throw new ForbiddenException(null, NOT_AUTHORIZED_TO_CHANGE);
     }
-
-    return await this.tasksService.updateTask(task, taskDto);
+    await this.tasksService.updateTask(task, taskDto);
+    return await this.tasksService.getTasksWithComments();
   }
 
   @ApiBearerAuth(BEARER_AUTH_NAME)
   @Delete(`:${API_PATH.taskId}`)
   @UseGuards(AuthGuardJwt)
-  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @AuthorizedUser() authorizedUser: User,
-  ) {
+  ): Promise<Task[]> {
     const task = await this.tasksService.findOne(taskId);
 
     if (!task) {
@@ -97,5 +102,6 @@ export class TasksController {
     }
 
     await this.tasksService.deleteTask(taskId);
+    return await this.tasksService.getTasksWithComments();
   }
 }

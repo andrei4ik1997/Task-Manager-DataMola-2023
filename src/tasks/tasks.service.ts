@@ -19,28 +19,28 @@ export class TasksService {
       .orderBy('task.id', 'DESC');
   }
 
-  private getTasksWithCommentsCountQuery(): SelectQueryBuilder<Task> {
-    return this.getTasksBaseQuery().loadRelationCountAndMap(
-      'task.commentsCount',
-      'task.comments',
-    );
+  private getTasksWithCommentsQuery(): SelectQueryBuilder<Task> {
+    return this.getTasksBaseQuery().leftJoinAndSelect('task.comments', 't');
   }
 
-  private getTaskWithCommentsQuery(id: number): SelectQueryBuilder<Task> {
-    return this.getTasksBaseQuery()
-      .leftJoinAndSelect('task.comments', 't')
-      .leftJoinAndSelect('t.creator', 'с')
+  private getTaskWithCommentsAndCommentCreatorQuery(
+    id: number,
+  ): SelectQueryBuilder<Task> {
+    return this.getTasksWithCommentsQuery()
+      .leftJoinAndSelect('t.creator', 'c')
       .where({ id });
   }
 
-  public async getTasksWithCommentsCount(): Promise<Task[]> {
-    const query = this.getTasksWithCommentsCountQuery();
+  public async getTasksWithComments(): Promise<Task[]> {
+    const query = this.getTasksWithCommentsQuery();
 
     return await query.getMany();
   }
 
-  public async getTaskWithComments(id: number): Promise<Task | undefined> {
-    const query = this.getTaskWithCommentsQuery(id);
+  public async getTaskWithCommentsAndCommentCreator(
+    id: number,
+  ): Promise<Task | undefined> {
+    const query = this.getTaskWithCommentsAndCommentCreatorQuery(id);
 
     return await query.getOne();
   }
