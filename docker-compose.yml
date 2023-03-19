@@ -30,7 +30,7 @@ services:
 
   task-manager:
     container_name: task_manager_api_container
-    image: task-manager-datamola-2023:latest
+    image: ghcr.io/andrei4ik1997/task-manager-datamola-2023/task-manager-datamola-2023:develop
     restart: always
     ports:
       - 3000:3000
