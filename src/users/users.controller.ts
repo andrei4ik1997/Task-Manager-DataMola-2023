@@ -1,4 +1,10 @@
-import { Param, ParseIntPipe, Patch, SerializeOptions } from '@nestjs/common';
+import {
+  Delete,
+  Param,
+  ParseIntPipe,
+  Patch,
+  SerializeOptions,
+} from '@nestjs/common';
 import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { ForbiddenException, HttpCode } from '@nestjs/common';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
@@ -25,6 +31,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @SerializeOptions({ strategy: 'excludeAll' })
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  getAll() {
+    return this.usersService.getAll();
+  }
 
   @ApiBearerAuth(BEARER_AUTH_NAME)
   @Get(API_PATH.profile)
@@ -78,5 +89,19 @@ export class UsersController {
       throw new BadRequestException([NOT_EQUAL_PASSWORDS]);
     }
     return await this.usersService.updateUser(user, userDto);
+  }
+
+  @ApiBearerAuth(BEARER_AUTH_NAME)
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(AuthGuardJwt)
+  @Delete(`:${API_PATH.userId}`)
+  delete(
+    @Param(API_PATH.userId, ParseIntPipe) id: number,
+    @AuthorizedUser() authorizedUser: User,
+  ) {
+    if (id !== authorizedUser.id) {
+      throw new ForbiddenException(null, NOT_AUTHORIZED_TO_CHANGE);
+    }
+    return this.usersService.delete(id);
   }
 }

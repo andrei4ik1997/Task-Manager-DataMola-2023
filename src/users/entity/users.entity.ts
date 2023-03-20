@@ -1,8 +1,16 @@
 import { Expose, Transform } from 'class-transformer';
 import { TABLE_NAME } from 'src/app.constants';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Comment } from '../../comments/entity/comments.entity';
 import { Task } from '../../tasks/entity/tasks.entity';
+import { Photo } from './photo.entity';
 
 @Entity(TABLE_NAME.users)
 export class User {
@@ -33,4 +41,9 @@ export class User {
   @OneToMany(() => Comment, (comment) => comment.creator)
   @Expose()
   comments: Comment[];
+
+  @OneToOne(() => Photo)
+  @JoinColumn()
+  @Expose()
+  photo: Photo;
 }

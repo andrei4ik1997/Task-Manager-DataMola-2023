@@ -29,9 +29,9 @@ export class Task {
   @Expose()
   createdAt: Date;
 
-  @Column()
+  @ManyToOne(() => User, (user) => user.tasks)
   @Expose()
-  assignee: string;
+  assignee: User;
 
   @Column('enum', {
     enum: Status,
