@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length } from 'class-validator';
+import { IsBase64, IsString, Length } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ minLength: 1 })
@@ -21,4 +21,8 @@ export class CreateUserDto {
   @IsString()
   @Length(1)
   retypedPassword: string;
+
+  @ApiProperty({ minLength: 1 })
+  @IsBase64()
+  photo: string;
 }
