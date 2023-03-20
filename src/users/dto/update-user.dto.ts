@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length } from 'class-validator';
+import { IsBase64, IsOptional, IsString, Length } from 'class-validator';
 
 export class UpdateUserDto {
   @ApiProperty({ minLength: 1, maxLength: 100 })
@@ -16,4 +16,9 @@ export class UpdateUserDto {
   @IsString()
   @Length(1)
   retypedPassword: string;
+
+  @ApiProperty({ minLength: 1 })
+  @IsBase64()
+  @IsOptional()
+  photo: string;
 }

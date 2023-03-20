@@ -7,6 +7,7 @@ export const TABLE_NAME = {
   users: 'users',
   tasks: 'tasks',
   comments: 'comments',
+  photo: 'photo',
 };
 
 export const API_PATH = {

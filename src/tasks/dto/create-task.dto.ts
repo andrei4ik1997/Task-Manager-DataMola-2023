@@ -14,10 +14,9 @@ export class CreateTaskDto {
   description: string;
 
   @ApiProperty({ minLength: 1, required: false })
-  @IsString()
   @IsOptional()
   @Length(1)
-  assignee?: string;
+  assignee?: number;
 
   @ApiProperty({ enum: Status })
   @IsEnum(Status)
