@@ -17,6 +17,7 @@ export const API_PATH = {
   userId: 'userId',
   register: 'register',
   profile: 'my_profile',
+  allUsers: 'allUsers',
   tasks: 'tasks',
   taskId: 'taskId',
   comments: 'comments',
