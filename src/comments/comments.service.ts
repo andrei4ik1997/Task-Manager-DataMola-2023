@@ -20,7 +20,7 @@ export class CommentsService {
   private getCommentsWithCreatorQuery(): SelectQueryBuilder<Comment> {
     return this.getCommentsBaseQuery().leftJoinAndSelect(
       'comment.creator',
-      'c',
+      'commentCreator',
     );
   }
 
