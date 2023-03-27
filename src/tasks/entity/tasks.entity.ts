@@ -29,7 +29,9 @@ export class Task {
   @Expose()
   createdAt: Date;
 
-  @ManyToOne(() => User, (user) => user.tasks)
+  @ManyToOne(() => User, (user) => user.tasks, {
+    onDelete: 'CASCADE',
+  })
   @Expose()
   assignee: User;
 
@@ -52,7 +54,9 @@ export class Task {
   @Expose()
   isPrivate: boolean;
 
-  @ManyToOne(() => User, (user) => user.tasks)
+  @ManyToOne(() => User, (user) => user.tasks, {
+    onDelete: 'CASCADE',
+  })
   @Expose()
   creator: User;
 
@@ -64,7 +68,4 @@ export class Task {
   })
   @Expose()
   comments: Comment[];
-
-  @Expose()
-  commentsCount?: number;
 }

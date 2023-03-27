@@ -33,7 +33,9 @@ export class Comment {
   @Column()
   taskId: number;
 
-  @ManyToOne(() => User, (user) => user.comments)
+  @ManyToOne(() => User, (user) => user.comments, {
+    onDelete: 'CASCADE',
+  })
   @Expose()
   creator: User;
 
