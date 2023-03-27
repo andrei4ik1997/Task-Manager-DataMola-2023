@@ -1,7 +1,7 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entity/users.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SALT } from './users.constants';
@@ -21,19 +21,50 @@ export class UsersService {
     return await bcrypt.hash(password, SALT);
   }
 
+  private getUsersBaseQuery(): SelectQueryBuilder<User> {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .orderBy('user.id', 'DESC');
+  }
+
+  private getUsersWithPhotoQuery(): SelectQueryBuilder<User> {
+    return this.getUsersBaseQuery().leftJoinAndSelect(
+      'user.photo',
+      'userPhoto',
+    );
+  }
+
+  private getUserWithPhotoQuery(id: number): SelectQueryBuilder<User> {
+    return this.getUsersWithPhotoQuery().where({ id });
+  }
+
+  public async getUsersWithPhoto(): Promise<User[]> {
+    const query = this.getUsersWithPhotoQuery();
+
+    return await query.getMany();
+  }
+
+  public async getUserWithPhoto(id: number): Promise<User | undefined> {
+    const query = this.getUserWithPhotoQuery(id);
+
+    return await query.getOne();
+  }
+
   public async findUser(userDto: CreateUserDto): Promise<User> {
     return await this.usersRepository.findOne({
       where: [{ login: userDto.login }, { userName: userDto.userName }],
     });
   }
 
-  public async getAll() {
-    return await this.usersRepository.find();
-  }
-
   public async findUserByLogin(login: string): Promise<User> {
     return await this.usersRepository.findOneBy({
       login,
+    });
+  }
+
+  public async findUserByUserName(userName: string): Promise<User> {
+    return await this.usersRepository.findOneBy({
+      userName,
     });
   }
 
@@ -45,7 +76,8 @@ export class UsersService {
 
   public async createUser(userDto: CreateUserDto): Promise<User> {
     const newPhoto = new Photo({ photo: userDto.photo });
-    await this.photoRepository.insert(newPhoto);
+
+    await this.photoRepository.save(newPhoto);
 
     const user = new User({
       login: userDto.login,
@@ -55,20 +87,14 @@ export class UsersService {
     });
 
     await this.usersRepository.save(user);
-    return (await this.usersRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.photo', 'p')
-      .where({ id: user.id })
-      .getOne()
-      .then((user: User & { photo: { id: string; photo: string } }) => ({
-        ...user,
-        photo: user.photo.photo,
-      }))) as User;
+
+    return this.getUserWithPhoto(user.id);
   }
 
-  public async updateUser(user: User, userDto: UpdateUserDto): Promise<any> {
+  public async updateUser(user: User, userDto: UpdateUserDto): Promise<User> {
     const newPhoto = new Photo({ photo: userDto.photo });
-    await this.photoRepository.insert(newPhoto);
+
+    await this.photoRepository.save(newPhoto);
 
     const updatedUser = new User({
       ...user,
@@ -77,29 +103,10 @@ export class UsersService {
       password: await this.hashPassword(userDto.password),
     });
 
-    await this.usersRepository.save(updatedUser);
-
-    return await this.usersRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.photo', 'p')
-      .getOne()
-      .then((user: User & { photo: { id: string; photo: string } }) => ({
-        ...user,
-        photo: user.photo.photo,
-      }));
+    return await this.usersRepository.save(updatedUser);
   }
 
-  delete = async (id: number) => {
-    const isExist = await this.usersRepository.findOneBy({ id });
-
-    if (isExist) {
-      await this.usersRepository.delete({ id });
-      return `User ${id} was removed successfully`;
-    }
-
-    throw new HttpException(
-      "Incorrect data or user doesn't exist",
-      HttpStatus.BAD_REQUEST,
-    );
-  };
+  public async delete(id: number): Promise<DeleteResult> {
+    return await this.getUsersBaseQuery().delete().where({ id }).execute();
+  }
 }
