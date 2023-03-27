@@ -12,29 +12,35 @@ import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/users/entity/users.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { NOT_AUTHORIZED_TO_DELETE, TASK_NOT_FOUND } from './tasks.constants';
+import { TASK_NOT_FOUND } from './tasks.constants';
+import { ASSIGNEE_NOT_FOUND } from './tasks.constants';
+import { NOT_AUTHORIZED_TO_DELETE } from './tasks.constants';
 import { NOT_AUTHORIZED_TO_CHANGE } from './tasks.constants';
 import { TasksService } from './tasks.service';
 import { Task } from './entity/tasks.entity';
+import { UsersService } from 'src/users/users.service';
 
 @ApiTags(API_PATH.tasks)
 @Controller(API_PATH.tasks)
 @SerializeOptions({ strategy: 'excludeAll' })
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(
+    private readonly tasksService: TasksService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(ClassSerializerInterceptor)
-  async findAll(): Promise<Task[]> {
+  public async findAll(): Promise<Task[]> {
     return await this.tasksService.getTasksWithComments();
   }
 
   @Get(`:${API_PATH.taskId}`)
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(ClassSerializerInterceptor)
-  async findOne(
+  public async findOne(
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
   ): Promise<Task> {
     const task = await this.tasksService.getTaskWithCommentsAndCommentCreator(
@@ -53,11 +59,19 @@ export class TasksController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
-  async create(
+  public async create(
     @Body() taskDto: CreateTaskDto,
     @AuthorizedUser() authorizedUser: User,
   ): Promise<Task[]> {
-    await this.tasksService.createTask(taskDto, authorizedUser);
+    const assignee = await this.usersService.findUserById(
+      Number(taskDto.assignee),
+    );
+
+    if (!assignee) {
+      throw new NotFoundException(ASSIGNEE_NOT_FOUND);
+    }
+
+    await this.tasksService.createTask(taskDto, authorizedUser, assignee);
     return await this.tasksService.getTasksWithComments();
   }
 
@@ -66,12 +80,15 @@ export class TasksController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
-  async update(
+  public async update(
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @Body() taskDto: UpdateTaskDto,
     @AuthorizedUser() authorizedUser: User,
   ): Promise<Task[]> {
     const task = await this.tasksService.findOne(taskId);
+    const assignee = await this.usersService.findUserById(
+      Number(taskDto.assignee),
+    );
 
     if (!task) {
       throw new NotFoundException(TASK_NOT_FOUND);
@@ -80,14 +97,19 @@ export class TasksController {
     if (task.creatorId !== authorizedUser.id) {
       throw new ForbiddenException(null, NOT_AUTHORIZED_TO_CHANGE);
     }
-    await this.tasksService.updateTask(task, taskDto);
+
+    if (!assignee) {
+      throw new NotFoundException(ASSIGNEE_NOT_FOUND);
+    }
+
+    await this.tasksService.updateTask(task, taskDto, assignee);
     return await this.tasksService.getTasksWithComments();
   }
 
   @ApiBearerAuth(BEARER_AUTH_NAME)
   @Delete(`:${API_PATH.taskId}`)
   @UseGuards(AuthGuardJwt)
-  async remove(
+  public async remove(
     @Param(API_PATH.taskId, ParseIntPipe) taskId: number,
     @AuthorizedUser() authorizedUser: User,
   ): Promise<Task[]> {
