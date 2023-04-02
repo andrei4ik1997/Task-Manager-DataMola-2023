@@ -5,6 +5,7 @@ import { User } from 'src/users/entity/users.entity';
 import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { QueryParamsTaskDto } from './dto/query-params-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -34,8 +35,12 @@ export class TasksService {
     return this.getTasksWithCommentsQuery().where({ id });
   }
 
-  public async getTasksWithComments(): Promise<Task[]> {
-    const query = this.getTasksWithCommentsQuery();
+  public async getTasksWithComments(
+    queryParams?: QueryParamsTaskDto,
+  ): Promise<Task[]> {
+    const query = this.getTasksWithCommentsQuery()
+      .offset(queryParams.skip)
+      .limit(queryParams.top);
 
     return await query.getMany();
   }

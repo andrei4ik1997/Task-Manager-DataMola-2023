@@ -1,4 +1,4 @@
-import { Controller, HttpStatus } from '@nestjs/common';
+import { Controller, HttpStatus, Query } from '@nestjs/common';
 import { Body, ClassSerializerInterceptor } from '@nestjs/common';
 import { Delete, ForbiddenException, Get } from '@nestjs/common';
 import { Param, ParseIntPipe, Patch } from '@nestjs/common';
@@ -19,6 +19,8 @@ import { NOT_AUTHORIZED_TO_CHANGE } from './tasks.constants';
 import { TasksService } from './tasks.service';
 import { Task } from './entity/tasks.entity';
 import { UsersService } from 'src/users/users.service';
+import { QueryParamsTaskDto } from './dto/query-params-task.dto';
+import { CreateApiQueryDecorator } from '../helpers/createApiQueryDecorator.helper';
 
 @ApiTags(API_PATH.tasks)
 @Controller(API_PATH.tasks)
@@ -30,11 +32,14 @@ export class TasksController {
   ) {}
 
   @Get()
+  @CreateApiQueryDecorator('queryParams', QueryParamsTaskDto)
   @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(ClassSerializerInterceptor)
-  public async findAll(): Promise<Task[]> {
-    return await this.tasksService.getTasksWithComments();
+  public async findAll(
+    @Query() queryParams: QueryParamsTaskDto,
+  ): Promise<Task[]> {
+    return await this.tasksService.getTasksWithComments(queryParams);
   }
 
   @Get(`:${API_PATH.taskId}`)
