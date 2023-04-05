@@ -6,6 +6,7 @@ import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { QueryParamsTaskDto } from './dto/query-params-task.dto';
+import { DEFAULT_SKIP, DEFAULT_TOP } from './tasks.constants';
 
 @Injectable()
 export class TasksService {
@@ -18,6 +19,13 @@ export class TasksService {
     return this.tasksRepository
       .createQueryBuilder('task')
       .orderBy('task.id', 'DESC');
+  }
+
+  private getTasksWithAssignerQuery(): SelectQueryBuilder<Task> {
+    return this.getTasksBaseQuery().leftJoinAndSelect(
+      'task.assignee',
+      'assigner',
+    );
   }
 
   private getTasksWithCommentsQuery(): SelectQueryBuilder<Task> {
@@ -39,8 +47,8 @@ export class TasksService {
     queryParams?: QueryParamsTaskDto,
   ): Promise<Task[]> {
     const query = this.getTasksWithCommentsQuery()
-      .offset(queryParams.skip)
-      .limit(queryParams.top);
+      .offset(queryParams?.skip || DEFAULT_SKIP)
+      .limit(queryParams?.top || DEFAULT_TOP);
 
     return await query.getMany();
   }
@@ -55,6 +63,11 @@ export class TasksService {
 
   public async findOne(id: number): Promise<Task | undefined> {
     return await this.tasksRepository.findOneBy({ id });
+  }
+
+  public async findOneWithAssignee(id: number): Promise<Task | undefined> {
+    const query = this.getTasksWithAssignerQuery().where({ id });
+    return await query.getOne();
   }
 
   public async createTask(

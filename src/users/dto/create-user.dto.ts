@@ -23,6 +23,8 @@ export class CreateUserDto {
   retypedPassword: string;
 
   @ApiProperty({ minLength: 1 })
+  @IsString()
+  @Length(1)
   @IsBase64()
   photo: string;
 }

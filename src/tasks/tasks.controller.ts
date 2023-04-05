@@ -69,7 +69,7 @@ export class TasksController {
     @AuthorizedUser() authorizedUser: User,
   ): Promise<Task[]> {
     const assignee = await this.usersService.findUserById(
-      Number(taskDto.assignee),
+      Number(taskDto?.assignee || authorizedUser.id),
     );
 
     if (!assignee) {
@@ -90,10 +90,9 @@ export class TasksController {
     @Body() taskDto: UpdateTaskDto,
     @AuthorizedUser() authorizedUser: User,
   ): Promise<Task[]> {
-    const task = await this.tasksService.findOne(taskId);
-    const assignee = await this.usersService.findUserById(
-      Number(taskDto.assignee),
-    );
+    console.log(taskId);
+    const task = await this.tasksService.findOneWithAssignee(taskId);
+    console.log(task);
 
     if (!task) {
       throw new NotFoundException(TASK_NOT_FOUND);
@@ -102,6 +101,10 @@ export class TasksController {
     if (task.creatorId !== authorizedUser.id) {
       throw new ForbiddenException(null, NOT_AUTHORIZED_TO_CHANGE);
     }
+
+    const assignee = await this.usersService.findUserById(
+      Number(taskDto.assignee || task.assignee.id),
+    );
 
     if (!assignee) {
       throw new NotFoundException(ASSIGNEE_NOT_FOUND);

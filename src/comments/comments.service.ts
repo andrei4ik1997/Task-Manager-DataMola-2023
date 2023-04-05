@@ -18,10 +18,9 @@ export class CommentsService {
   }
 
   private getCommentsWithCreatorQuery(): SelectQueryBuilder<Comment> {
-    return this.getCommentsBaseQuery().leftJoinAndSelect(
-      'comment.creator',
-      'commentCreator',
-    );
+    return this.getCommentsBaseQuery()
+      .leftJoinAndSelect('comment.creator', 'commentCreator')
+      .leftJoinAndSelect('commentCreator.photo', 'commentCreatorPhoto');
   }
 
   public async getCommentsByTaskIdWithCreator(
