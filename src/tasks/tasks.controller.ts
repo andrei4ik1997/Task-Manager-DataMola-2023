@@ -13,6 +13,7 @@ import { User } from 'src/users/entity/users.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { STATUS_NOT_FOUND, TASK_NOT_FOUND } from './tasks.constants';
+import { USER_ID_FOR_ASSIGNEE_FIELD } from './tasks.constants';
 import { ASSIGNEE_NOT_FOUND } from './tasks.constants';
 import { NOT_AUTHORIZED_TO_DELETE } from './tasks.constants';
 import { NOT_AUTHORIZED_TO_CHANGE } from './tasks.constants';
@@ -41,7 +42,7 @@ export class TasksController {
     @Query() queryParams: QueryParamsTaskDto,
   ): Promise<Task[]> {
     if (!Object.values(StatusParams).includes(queryParams.status)) {
-      throw new NotFoundException(STATUS_NOT_FOUND);
+      throw new ForbiddenException(null, STATUS_NOT_FOUND);
     }
 
     if (queryParams.status === StatusParams.All) {
@@ -77,6 +78,10 @@ export class TasksController {
     @Body() taskDto: CreateTaskDto,
     @AuthorizedUser() authorizedUser: User,
   ): Promise<Task[]> {
+    if (isNaN(Number(taskDto?.assignee))) {
+      throw new ForbiddenException(null, USER_ID_FOR_ASSIGNEE_FIELD);
+    }
+
     const assignee = await this.usersService.findUserById(
       Number(taskDto?.assignee || authorizedUser.id),
     );

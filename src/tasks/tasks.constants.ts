@@ -6,6 +6,7 @@ export const NOT_AUTHORIZED_TO_CHANGE =
   'You are not authorized to change this task';
 
 export const ASSIGNEE_NOT_FOUND = 'Assignee not found';
+export const USER_ID_FOR_ASSIGNEE_FIELD = 'Use User id for assignee field';
 
 export const DEFAULT_SKIP = 0;
 export const DEFAULT_TOP = 10;
