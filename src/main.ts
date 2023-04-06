@@ -6,9 +6,10 @@ import { APP_LISTEN_PORT, PREFIX } from './app.constants';
 import { AppModule } from './app.module';
 import { swaggerCustomOptions } from './config/swager.config';
 import { swaggerConfig, swaggerOptions } from './config/swager.config';
+import { nestOptions } from './config/nest.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, nestOptions);
 
   app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix(PREFIX);
