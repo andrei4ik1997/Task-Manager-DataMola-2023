@@ -16,7 +16,7 @@ export const API_PATH = {
   users: 'user',
   userId: 'userId',
   register: 'register',
-  profile: 'my_profile',
+  profile: 'myProfile',
   allUsers: 'allUsers',
   tasks: 'tasks',
   taskId: 'taskId',
@@ -37,4 +37,4 @@ export const BEARER_AUTH_CONFIG: SecuritySchemeObject = {
 };
 export const BEARER_AUTH_NAME = 'JWT-auth';
 
-export const JWT_EXPIRES_IN = '60m';
+export const JWT_EXPIRES_IN = '24h';
