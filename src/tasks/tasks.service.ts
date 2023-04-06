@@ -40,7 +40,10 @@ export class TasksService {
   private getTaskWithCommentsAndCommentCreatorQuery(
     id: number,
   ): SelectQueryBuilder<Task> {
-    return this.getTasksWithCommentsQuery().where({ id });
+    return this.getTasksWithCommentsQuery()
+      .leftJoinAndSelect('comments.creator', 'commentCreator')
+      .leftJoinAndSelect('commentCreator.photo', 'commentCreatorPhoto')
+      .where({ id });
   }
 
   public async getTasksWithComments(
