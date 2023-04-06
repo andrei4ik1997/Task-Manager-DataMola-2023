@@ -12,7 +12,7 @@ import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { User } from 'src/users/entity/users.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { TASK_NOT_FOUND } from './tasks.constants';
+import { STATUS_NOT_FOUND, TASK_NOT_FOUND } from './tasks.constants';
 import { ASSIGNEE_NOT_FOUND } from './tasks.constants';
 import { NOT_AUTHORIZED_TO_DELETE } from './tasks.constants';
 import { NOT_AUTHORIZED_TO_CHANGE } from './tasks.constants';
@@ -21,6 +21,7 @@ import { Task } from './entity/tasks.entity';
 import { UsersService } from 'src/users/users.service';
 import { QueryParamsTaskDto } from './dto/query-params-task.dto';
 import { CreateApiQueryDecorator } from '../helpers/createApiQueryDecorator.helper';
+import { StatusParams } from './tasks.enums';
 
 @ApiTags(API_PATH.tasks)
 @Controller(API_PATH.tasks)
@@ -39,7 +40,15 @@ export class TasksController {
   public async findAll(
     @Query() queryParams: QueryParamsTaskDto,
   ): Promise<Task[]> {
-    return await this.tasksService.getTasksWithComments(queryParams);
+    if (!Object.values(StatusParams).includes(queryParams.status)) {
+      throw new NotFoundException(STATUS_NOT_FOUND);
+    }
+
+    if (queryParams.status === StatusParams.All) {
+      return await this.tasksService.getAllTasksWithComments();
+    }
+
+    return await this.tasksService.getTasksWithCommentsByStatus(queryParams);
   }
 
   @Get(`:${API_PATH.taskId}`)
@@ -77,7 +86,7 @@ export class TasksController {
     }
 
     await this.tasksService.createTask(taskDto, authorizedUser, assignee);
-    return await this.tasksService.getTasksWithComments();
+    return await this.tasksService.getAllTasksWithComments();
   }
 
   @ApiBearerAuth(BEARER_AUTH_NAME)
@@ -109,7 +118,7 @@ export class TasksController {
     }
 
     await this.tasksService.updateTask(task, taskDto, assignee);
-    return await this.tasksService.getTasksWithComments();
+    return await this.tasksService.getAllTasksWithComments();
   }
 
   @ApiBearerAuth(BEARER_AUTH_NAME)
@@ -130,6 +139,6 @@ export class TasksController {
     }
 
     await this.tasksService.deleteTask(taskId);
-    return await this.tasksService.getTasksWithComments();
+    return await this.tasksService.getAllTasksWithComments();
   }
 }

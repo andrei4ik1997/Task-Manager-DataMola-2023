@@ -7,6 +7,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { QueryParamsTaskDto } from './dto/query-params-task.dto';
 import { DEFAULT_SKIP, DEFAULT_TOP } from './tasks.constants';
+import { Status, StatusParams } from './tasks.enums';
 
 @Injectable()
 export class TasksService {
@@ -46,10 +47,30 @@ export class TasksService {
       .where({ id });
   }
 
-  public async getTasksWithComments(
+  public async getAllTasksWithComments(): Promise<Task[]> {
+    const query = this.getTasksWithCommentsQuery();
+
+    return await query.getMany();
+  }
+
+  public async getTasksWithCommentsByStatus(
     queryParams?: QueryParamsTaskDto,
   ): Promise<Task[]> {
+    let sta;
+    switch (queryParams.status) {
+      case StatusParams.ToDo:
+        sta = Status.ToDo;
+        break;
+      case StatusParams.InProgress:
+        sta = Status.InProgress;
+        break;
+      case StatusParams.Complete:
+        sta = Status.Complete;
+        break;
+    }
+
     const query = this.getTasksWithCommentsQuery()
+      .where({ status: sta })
       .offset(queryParams?.skip || DEFAULT_SKIP)
       .limit(queryParams?.top || DEFAULT_TOP);
 
