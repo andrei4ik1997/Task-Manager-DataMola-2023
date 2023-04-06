@@ -90,9 +90,7 @@ export class TasksController {
     @Body() taskDto: UpdateTaskDto,
     @AuthorizedUser() authorizedUser: User,
   ): Promise<Task[]> {
-    console.log(taskId);
     const task = await this.tasksService.findOneWithAssignee(taskId);
-    console.log(task);
 
     if (!task) {
       throw new NotFoundException(TASK_NOT_FOUND);
