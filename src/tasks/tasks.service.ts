@@ -19,7 +19,7 @@ export class TasksService {
   private getTasksBaseQuery(): SelectQueryBuilder<Task> {
     return this.tasksRepository
       .createQueryBuilder('task')
-      .orderBy('task.id', 'DESC');
+      .orderBy('task.createdAt', 'DESC');
   }
 
   private getTasksWithAssignerQuery(): SelectQueryBuilder<Task> {
@@ -56,21 +56,21 @@ export class TasksService {
   public async getTasksWithCommentsByStatus(
     queryParams?: QueryParamsTaskDto,
   ): Promise<Task[]> {
-    let sta;
+    let status;
     switch (queryParams.status) {
       case StatusParams.ToDo:
-        sta = Status.ToDo;
+        status = Status.ToDo;
         break;
       case StatusParams.InProgress:
-        sta = Status.InProgress;
+        status = Status.InProgress;
         break;
       case StatusParams.Complete:
-        sta = Status.Complete;
+        status = Status.Complete;
         break;
     }
 
     const query = this.getTasksWithCommentsQuery()
-      .where({ status: sta })
+      .where({ status })
       .offset(queryParams?.skip || DEFAULT_SKIP)
       .limit(queryParams?.top || DEFAULT_TOP);
 
