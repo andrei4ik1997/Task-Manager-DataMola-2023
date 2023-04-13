@@ -71,8 +71,8 @@ export class TasksService {
 
     const query = this.getTasksWithCommentsQuery()
       .where({ status })
-      .offset(queryParams?.skip || DEFAULT_SKIP)
-      .limit(queryParams?.top || DEFAULT_TOP);
+      .offset(queryParams.skip || DEFAULT_SKIP)
+      .limit(queryParams.top || DEFAULT_TOP);
 
     return await query.getMany();
   }
